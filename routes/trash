@@ -1,0 +1,20 @@
+Route::post("/login", [UserController::class, "login"]);
+
+Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    Route::get("/users", [UserController::class, 'index']);
+
+    Route::get("/users/{id}", [UserController::class, "getUserById"]);
+
+    Route::post("/users", [UserController::class, 'store']);
+
+    Route::put("/users", [UserController::class, 'edit']);
+
+    Route::post("/admin/users", [UserController::class, 'store_admin']);
+
+    Route::delete("/users/delete/{id}", [UserController::class, "delete"]);
+
+    Route::put("/users/changePassword", [UserController::class, "changePassword"]);
+
+    Route::post("/logout", [UserController::class, "logout"]);
+});
