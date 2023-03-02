@@ -41,7 +41,8 @@ class AttendeeController extends Controller
         }
 
         $attendee = Attendee::join('users', 'users.id', '=', 'attendees.user_id')
-            ->get(['attendees.id', 'users.name', 'users.phone', 'users.email'])->where('id', $id)[1];
+            ->where("attendees.id", $id)
+            ->first(['attendees.id', 'users.name', 'users.phone', 'users.email']);
 
         return Result::WithResult($attendee, 200);
     }

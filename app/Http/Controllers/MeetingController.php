@@ -55,8 +55,9 @@ class MeetingController extends Controller
         }
 
         $meeting = Meeting::join('users', 'users.id', '=', 'meetings.created_by')
+            ->where('meetings.id', $setting->current_meeting)
+            ->first(['meetings.*', 'users.name AS created_by', 'users.name AS updated_by']);
 
-            ->get(['meetings.*', 'users.name AS created_by', 'users.name AS updated_by'])->where('id', $setting->current_meeting)[0];
 
         $guest = GuestPreacher::where('meeting_id', $meeting->id)->first();
 
@@ -237,7 +238,8 @@ class MeetingController extends Controller
                     ]);
                 } else {
                     // Update the current meeting in settings table
-                    DB::table('settings')->where('id', 1)->update([
+                    DB::table('settings')->delete();
+                    DB::table('settings')->insert([
                         'current_meeting' => $id,
                     ]);
                 }

@@ -15,6 +15,7 @@ class UserController extends Controller
         $users = User::join("roles", "roles.id", "=", "users.role_id")
             ->join("users AS creators", "creators.id", "=", "users.created_by")
             ->leftJoin("attendees", "attendees.user_id", "=", "users.id")
+            ->orderBy("users.created_at", "desc")
             ->get(["users.*", "roles.name AS role", "creators.name AS created", "attendees.id AS attendee"]);
         return $users;
     }
@@ -118,7 +119,7 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required',
                 'email' => 'required|email|unique:users',
-                'phone' => 'required|min:10|max:10',
+                'phone' => 'required|min:10|max:10|unique:users',
                 'pass' => 'required|min:6',
                 'passConf' => 'required|min:6',
                 'collegeORunit' => 'required|string',
@@ -126,9 +127,7 @@ class UserController extends Controller
             ], [
                 'name.required' => 'Name field is required',
                 'role_id.required' => 'A user must have a role',
-                'email.required' => 'required|email|unique:users',
-                'phone.required' => 'required|min:10',
-                'pass.required' => 'required|min:6',
+
             ]);
 
 
