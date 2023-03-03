@@ -20,7 +20,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5174', 'http://127.0.0.1:5173', 'http://elivecafe.com/meeting', 'https://elivecafe.com/meeting'],
+    'allowed_origins' => ['http://localhost:5173', 'https://peaceful-crostata-5d62d3.netlify.app', 'http://127.0.0.1:5174', 'http://127.0.0.1:5173', 'http://elivecafe.com/meeting', 'https://elivecafe.com/meeting'],
 
     'allowed_origins_patterns' => [],
 
