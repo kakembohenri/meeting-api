@@ -47,6 +47,18 @@ class AttendeeController extends Controller
         return Result::WithResult($attendee, 200);
     }
 
+    // Get attendees by meeting id
+    public function getAttendeesByMeetingId($id)
+    {
+        $attendees = Attendee::join("users", "users.id", "=", "attendees.user_id")
+            ->join("meetings", "meetings.id", "=", "attendees.meeting_id")
+            ->get(["attendees.id", "users.name AS name", "meetings.name AS meeting", "meetings.date AS date", "meetings.start_time AS start", "meetings.end_time AS end", "meetings.id AS meeting_id", "users.email AS email", "users.phone AS phone", "users.college/unit AS college/unit"])->where('meeting_id', $id);
+
+
+        return Result::WithResult($attendees, 200);
+    }
+
+
     // Create a meeting attendee
     public function store(Request $request)
     {

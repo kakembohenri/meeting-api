@@ -126,7 +126,7 @@ class MeetingController extends Controller
 
             // .txt .doc .pdf .csv .docx
 
-            $extensions = array('pdf', 'txt', 'csv', 'docx', 'doc');
+            $extensions = array('pdf', 'plain', 'vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'vnd.openxmlformats-officedocument.wordprocessingml.document', 'msword');
 
             $extension = explode('/', explode(':', substr($file_64, 0, strpos($file_64, ';')))[1])[1];
 
@@ -147,7 +147,18 @@ class MeetingController extends Controller
 
             $file = str_replace(' ', '+', $file);
 
-            $fileName = $request->name . '-' . date('d-M-Y') . '.' . $extension;
+            $fileName = null;
+            if ($extension == "plain") {
+                $fileName = $request->name . '-' . date('d-M-Y') . '.' . 'txt';
+            } else if ($extension == 'vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                $fileName = $request->name . '-' . date('d-M-Y') . '.' . 'xlsx';
+            } else if ($extension == 'msword') {
+                $fileName = $request->name . '-' . date('d-M-Y') . '.' . 'doc';
+            } else if ($extension == 'vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                $fileName = $request->name . '-' . date('d-M-Y') . '.' . 'docx';
+            } else {
+                $fileName = $request->name . '-' . date('d-M-Y') . '.' . $extension;
+            }
 
             Storage::disk('public')->put('/apiFiles/' . $fileName, base64_decode($file));
 
@@ -168,10 +179,30 @@ class MeetingController extends Controller
     {
         $myFile = Storage::disk('public')->get('/apiFiles/' . $fileName);
 
-        $headers = ['Content-Type: application/pdf'];
-        $fileName = time() . '.pdf';
+        $extension = explode('.', $fileName)[1];
 
-        return response()->download($myFile, $headers);
+        // $headers = array('Content-Type: application/pdf');
+
+        $fileName = explode('.', $fileName)[0] . time() . '.' . $extension;
+
+        // return response()->download($myFile, $fileName, $headers);
+        $prefix = null;
+        if ($extension == "txt") {
+            $prefix = 'data:text/plain;base64,';
+        } else if ($extension == 'xlsx') {
+            $prefix = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,';
+        } else if ($extension == 'doc') {
+            $prefix = 'data:application/msword;base64,';
+        } else if ($extension == 'docx') {
+            $prefix = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,';
+        } else {
+            $prefix = 'data:application/pdf;base64,';
+        }
+
+        return [
+            'doc' => $prefix . base64_encode($myFile),
+            'fileName' => $fileName
+        ];
 
         // $result = [
         //     'file' => base64_encode($file)
@@ -198,9 +229,22 @@ class MeetingController extends Controller
                 'created_by' => 'The user creating the meeting should be specified'
             ]);
 
-            $request['status'] = 1;
+            $data = [
+                'name' => $request->name,
+                'date' => $request->date,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'location' => $request->location,
+                'created_by' => $request->created_by,
+                'status' => 1
+            ];
 
-            Meeting::create($request->all());
+            $meeting = Meeting::create($data);
+
+            if ($request->guest['id'] != "") {
+                // Update guest
+                GuestPreacher::where('id', $request->guest['id'])->update(['meeting_id' => $meeting->id]);
+            }
 
             return Result::Simple("Meeting has been created", 201);
         } catch (\Illuminate\Validation\ValidationException $e) {

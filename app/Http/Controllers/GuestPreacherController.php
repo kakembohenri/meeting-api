@@ -43,6 +43,16 @@ class GuestPreacherController extends Controller
                 ]);
             }
 
+            if ($request->meeting['id'] != "") {
+                $request['meeting_id'] = $request->meeting['id'];
+
+                $request['invitation_status'] = 1;
+
+                GuestPreacher::create($request->all());
+
+                return Result::Simple('Guest created', 201);
+            }
+
             $setting = DB::table('settings')->first();
 
             if ($setting === null) {

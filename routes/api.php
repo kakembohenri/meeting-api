@@ -87,6 +87,9 @@ Route::controller(AttendeeController::class)->group(function () {
     // Get attendee 
     Route::get("/attendee/{id}", "getAttendeeById");
 
+    // Get attendees by meeting_id
+    Route::get("/meeting-attendees/{id}", "getAttendeesByMeetingId");
+
     // Create meeting attendee
     Route::post("/attendees", "store");
 
